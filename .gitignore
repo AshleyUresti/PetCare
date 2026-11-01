@@ -3,6 +3,10 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+.idea/
+*.iml
+*.iws
+*.ipr
 
 ### Eclipse ###
 .apt_generated
@@ -28,3 +32,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Java compilado ###
+*.class
