@@ -2,11 +2,11 @@
 
 | Clase | Tipo | Atributos principales | Responsabilidad                                                                                                                                                                                                     |  Justificación
 |---|---|---|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---
-| `Persona` | Abstracta | nombre, apellido, telefono, correo | `getNombreCompleto()`, getters/setters con validación, `describirRol()` (abstracto), `toString()`                                                                                                                   | Reúne los datos comunes de dueños, veterinarios y recepcionistas para no repetirlos. Es abstracta porque no existe una persona genérica en la clínica. |
+| `Persona` | Abstracta | nombre, apellido, telefono, correo | `validarTexto(valor, campo): String` (static), `getNombreCompleto()`, getters/setters con validación, `describirRol()` (abstracto), `toString()`                                                                                                                   | Reúne los datos comunes de dueños, veterinarios y recepcionistas para no repetirlos. Es abstracta porque no existe una persona genérica en la clínica. |
 | `Propietario` | Concreta | direccion, mascotas (lista) | `agregarMascota(Mascota)`, `eliminarMascota(Mascota)`, `describirRol()`                                                                                                                                             | Representa al dueño y su dato propio (dirección). Conoce a sus mascotas, que existen por sí mismas. |
 | `Veterinario` | Concreta | cedulaProfesional, especialidad | `describirRol()`, `toString()`                                                                                                                                                                                      | Profesional que atiende citas. Tiene cédula y especialidad, datos que no aplican a otros roles. |
 | `Recepcionista` | Concreta | turno | `describirRol()`                                                                                                                                                                                                    | Es concreta porque representa al personal administrativo encargado de la gestión operativa de la clínica y cuenta con un turno como dato propio. |
-| `Mascota` | Abstracta | nombre, edad, peso, propietario, historial | `hacerSonido() : String` (abstracto), `setPeso()/setEdad()` (validan > 0), `getHistorial()`, `toString()`                                                                                                           | Agrupa lo común de todas las mascotas y crea su propio historial (composición). Es abstracta porque cada animal emite un sonido distinto. |
+| `Mascota` | Abstracta | nombre, edad, peso, propietario, historial | `validarTexto(valor, campo): String` (static) `hacerSonido() : String` (abstracto), `setPeso()/setEdad()` (validan > 0), `getHistorial(), toString(), getNombre(), getPropietario()`                                                                                                           | Agrupa lo común de todas las mascotas y crea su propio historial (composición). Es abstracta porque cada animal emite un sonido distinto. |
 | `Perro` | Concreta | raza, nivelEnergia | `hacerSonido() : String`, `toString()`                                                                                                                                                                              | Especialización con datos propios. Implementa el método abstracto. |
 | `Gato` | Concreta | esDomestico | `hacerSonido() : String`, `toString()`                                                                                                                                                                              | Especialización con su dato propio. Sonido distinto al del perro. |
 | `AveExotica` | Concreta | longitudAlas | `hacerSonido() : String`, `toString()`                                                                                                                                                                              | Tercer tipo exigido. Demuestra el polimorfismo en `List<Mascota>` |
@@ -31,3 +31,27 @@ cita01 | Cita | mascota = kaiser, veterinario = drLopez, consultorio = Consultor
 ### Clases candidatas descartadas
 La clase `Direccion`, ya que solo es un dato de texto del propietario sin comportamiento propio, así que basta un String en Propietario. Y la clase `Vacuna` porque su único dato relevante es el costo, que ya vive en Vacunacion (nombreVacuna y costoVacuna).
 
+---
+
+### Justificación de relaciones
+**Composición:** la parte no existe sin el todo
+* Mascota ◆-- HistorialClinico: El historial se crea junto con la mascota y no tiene sentido sin ella, si la mascota se elimina, su historial desaparece con ella.
+* Clinica ◆-- Consultorio: La clínica crea sus propios consultorios a partir de `numConsultorios`, y un consultorio no existe fuera de ella, por lo tanto, si la clínica se elimina, sus consultorios también. Por eso no es agregación, ya que nadie le pasa consultorios ya construidos.
+* Clinica ◆-- Comprobante: Los comprobantes los genera la clínica con `generarComprobante()`, y solo existen dentro de su contabilidad, y al igual que en los otros casos, si la clínica desaparece, sus comprobantes pierden su contexto y se eliminan con ella.
+
+**Agregación:** el todo guarda partes que ya existían por su cuenta
+* Clinica ◇-- Veterinario: Los veterinarios son personas que existen antes de ser registrados y que `agregarVeterinario()` recibe ya construidos, entonces, si la clínica se elimina, el veterinario sigue existiendo y podría trabajar en otra.
+* Clinica ◇-- Propietario: Un propietario se crea fuera y luego se registra con `registrarPropietario()`, si la clínica cierra, el propietario sigue existiendo como objeto independiente.
+* Clinica ◇-- Mascota: Igual que el propietario, la mascota llega ya creada a `registrarMascota()`, si la clínica cierra, la mascota sigue viva y conserva su propio historial, porque este depende de la mascota y no de la clínica.
+* Clinica ◇-- Cita: `agendarCita()` recibe una cita creada fuera, así que la clínica la agrupa pero no la fabrica, si la clínica se elimina, la cita no se destruye automáticamente, ya que sigue referenciada por el historial y por el comprobante.
+
+**Asociación:** relación de uso sin dependencia de vida
+* Propietario -- Mascota (posee): Ninguno es parte del otro, si el propietario se elimina, la mascota puede seguir registrada, y si la mascota muere, el propietario sigue existiendo. Es bidireccional porque el propietario conoce sus mascotas y la mascota recibe su propietario en el constructor.
+* HistorialClinico → Cita (registra): El historial solo guarda referencias a citas que viven en `Clinica` y en `Comprobante`, si el historial se elimina, las citas no se pierden, porque se necesitan para cobros y consultas.
+* Cita → Mascota, Cita → Veterinario: La cita solo referencia a quién atiende y a quién se atiende. Si la cita se cancela o se elimina, la mascota y el veterinario no se ven afectados.
+* Cita → Consultorio: La cita solo indica dónde se realiza, ya que el consultorio pertenece a la clínica, representando la composición, así que eliminar la cita no le afecta.
+* Cita → Servicio (incluye): Los servicios se crean con `agregarServicio()` por lo que es un objeto independiente, y un mismo tipo de servicio puede aparecer en muchas citas. Vemos la asociación porque la cita los usa para calcular su total sin ser quien lo crea.
+* Cita → EstadoCita: Un enum es un valor, no un objeto con vida propia. La cita solo guarda cuál valor tiene, y el estado sigue existiendo aunque la cita se elimine.
+* Comprobante → Cita (cobra): El comprobante se construye a partir de una cita y la referencia, pero no la posee. Si el comprobante se anula, la cita sigue existiendo.
+
+---
