@@ -199,6 +199,8 @@ Escenario de demostración: dos dueños y tres mascotas (perro, gato y ave), dos
 ![cap14](docs/capturas/cap14.png)
 ![cap15](docs/capturas/cap15.png)
 ![cap16](docs/capturas/cap16.png)
+![cap17.1](docs/capturas/cap17.1.png)
+![cap17.2](docs/capturas/cap17.2.png)
 ![cap17](docs/capturas/cap17.png)
 ![cap18](docs/capturas/cap18.png)
 
