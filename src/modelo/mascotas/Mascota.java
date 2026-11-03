@@ -1,15 +1,14 @@
 package modelo.mascotas;
 import modelo.personas.Propietario;
 
-/**
- * Clase abstracta base de todas las mascotas de la clínica, cada mascota crea y posee su propio historial clínico (composición) */
+/**Clase abstracta base de todas las mascotas de la clínica, cada mascota crea y posee su propio historial clínico (composición) */
 public abstract class Mascota {
 
     private String nombre;
     private int edad;
     private double peso;
     private final Propietario propietario;
-    //el historial se crea aquí dentro
+    //el historial se crea aquí
     private final HistorialClinico historial = new HistorialClinico();
 
     protected Mascota(String nombre, int edad, double peso, Propietario propietario) {

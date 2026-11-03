@@ -1,5 +1,4 @@
 @startuml
-
 package "modelo.personas" {
 abstract class Persona {
 - nombre: String
@@ -94,6 +93,10 @@ class Clinica {
 + getCitas(): List<Cita>
 + consultarCobrosPorMascota(mascota: Mascota): List<Comprobante>
 + consultarCobrosPorVeterinario(veterinario: Veterinario): List<Comprobante>
++ darDeBajaMascota(mascota: Mascota): void
++ buscarCita(nombreMascota: Mascota): List<Cita>
++ buscarCita(fecha: LocalDate): List<Cita>
++ buscarConsultorio(numero: int): Consultorio
 }
 
     class Consultorio {
@@ -122,7 +125,7 @@ class Clinica {
       + getMascota(): Mascota
       + getVeterinario(): Veterinario
       + getConsultorio(): Consultorio
-      + getServicios(): Servicios
+      + getServicios(): List<Servicio>
       + toString(): String
     }
 
@@ -136,6 +139,7 @@ class Clinica {
       + getMascota(): Mascota
       + getVeterinario(): Veterinario
       + toString(): String
+      + getCita(): Cita
     }
 }
 
@@ -167,6 +171,7 @@ class Cirugia {
 + getDescripcion(): String
 + setHorasQuirofano(horasQuirofano: int): void
 + setComplejidad(complejidad: int): void
+- {static} INCREMENTO_POR_COMPLEJIDAD: double
 }
 }
 
@@ -208,5 +213,6 @@ Cita "1" --> "1" EstadoCita : tiene >
 
 ' Comprobante
 Comprobante "1" --> "1" Cita : cobra >
+
 
 @enduml
